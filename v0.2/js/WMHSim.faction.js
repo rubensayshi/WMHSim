@@ -1,19 +1,25 @@
-WMHSim.faction = function() {
-	var beastCnfs 		= [];
+WMHSim.faction = WMHSimBase.extend({
+	/*
+	 * properties
+	 */ 
+	name			: 'anon',
+	beasts			: {},
 	
-	var getBeastCnfs = function() {
-		return beastCnfs;
-	};
+	/*
+	 * constructor
+	 */ 
+	init			: function(name) {
+		this.name = name;
+	},
 	
-	var addBeastCnf = function(beastCnf) {
-		beastCnfs.push(beastCnf);
-		
-		return beastCnf;
-	};
+	/*
+	 * methods
+	 */		
+	getBeasts 		: function() {
+		return this.beasts;
+	},
 	
-	return {
-		getBeastCnfs:	getBeastCnfs,
-		addBeastCnf:	addBeastCnf
-	};
-	
-};
+	addBeast		: function(name, beast) {
+		this.beasts[name] = beast;
+	}
+});
