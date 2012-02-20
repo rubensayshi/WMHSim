@@ -122,7 +122,7 @@ foreach($a_dataArray as $k => $a_data)
 	$a_lineData = array();
 	for($i = $i_minX; $i <= $i_maxX; $i++)
 	{
-		$i_value = $a_data[$i];
+		$i_value = isset($a_data[$i]) ? $a_data[$i] : false;
 				
 		if(!$i_value)
 		{
@@ -198,7 +198,8 @@ foreach($a_drawData as $k => $a_lineData)
 			
 			imageline($o_graph, $i_startingX, $i_startingY, $i_finalX, $i_finalY, $a_colorArray[$k]);
 			// Draw the text
-			imagestring($o_graph, 4, $i_startingX - 20,($i_startingY - 25), $a_dataArray[$k][$i], $c_black);
+			if (isset($a_dataArray[$k][$i]))
+				imagestring($o_graph, 4, $i_startingX - 20,($i_startingY - 25), $a_dataArray[$k][$i], $c_black);
 		}		
 		$c++;
 	}

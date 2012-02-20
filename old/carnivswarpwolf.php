@@ -33,7 +33,7 @@ function rollDice($i_dices=2, $b_discardLowest=false)
 		$a_diceRolls[] = rand(1,6);
 	}
 	
-	if($b_discardLowes)
+	if($b_discardLowest)
 	{
 		sort($a_diceRolls);
 		array_shift($a_diceRolls);
@@ -227,9 +227,9 @@ $b_stopOnDeath = false;
 $b_debug = false;
 //$b_debug = true;
 $i_laps = 500;
-if($_GET['iterations'])
+if(isset($_GET['iterations']))
 {
-	$i_laps = $_GET['iterations'];
+	$i_laps = intval($_GET['iterations']);
 }
 
 if($i_laps < 1) $i_laps = 1;

@@ -1,6 +1,3 @@
-<?
-	@session_start();
-?>
 <style>
 hr {
 	clear: both;
@@ -19,14 +16,6 @@ div {
 </style>
 
 <?
-function generateGraph($a_dataArray=array())
-{
-	$i_graphId = uniqid();
-	$_SESSION['graphs'][$i_graphId] = $a_dataArray;
-
-	echo '<img src="line.php?uniqId='.$i_graphId.'" />'; 
-}
-
 function debug($s_debugMsg)
 {
 	global $b_debug;
@@ -64,8 +53,6 @@ class warbeast
 	var $i_dmg = 0;
 	var $i_fury = 0;
 	
-	var $i_attackCount = 0;
-	
 	var $i_curFury = 0;
 	var $a_weapons = array();
 	var $a_buffs = array();
@@ -77,13 +64,6 @@ class warbeast
 	{
 		$this->s_warbeastName = $s_warbeastName;
 		
-		$this->setStats($a_stats);
-		
-		$this->a_weapons = $a_weapons;	
-	}
-		
-	function setStats($a_stats=array())
-	{
 		foreach($a_stats as $s_statName => $i_statVal)
 		{
 			$s_statVar = 'i_'.$s_statName;
@@ -92,20 +72,22 @@ class warbeast
 			{
 				$this->$s_statVar = $i_statVal;
 			}
-		}	
+		}
+		
+		$this->a_weapons = $a_weapons;	
+		
+		$this->infoDump();
 	}
 		
 	function infoDump()
 	{
-		$s_info = '<div style="float: left"><b>['.$this->s_warbeastName.']</b> <br />';
-		$s_info .= 'FURY ['.$this->i_fury.'] MAT['.$this->i_mat.'] DEF ['.$this->i_def.'] ARM ['.$this->i_arm.'] <br />';
+		echo '<div style="float: left"><b>['.$this->s_warbeastName.']</b> <br />';
+		echo 'FURY ['.$this->i_fury.'] MAT['.$this->i_mat.'] DEF ['.$this->i_def.'] ARM ['.$this->i_arm.'] <br />';
 		foreach($this->a_weapons as $a_weaponInfo)
 		{
-			$s_info .= ' - '.$a_weaponInfo['name'] . ' P+S ['.($this->i_str + $a_weaponInfo['pow']).'] <br />';
+			echo ' - '.$a_weaponInfo['name'] . ' P+S ['.($this->i_str + $a_weaponInfo['pow']).'] <br />';
 		}	
-		$s_info .= '</div>';
-		
-		return $s_info;
+		echo '</div>';
 	}
 		
 	function attack($o_target)
@@ -147,7 +129,6 @@ class warbeast
 	
 	function evalAttack($o_target, $a_weaponInfo)
 	{	
-		$this->i_attackCount++;
 		debug('['.$this->s_warbeastName.'] attacks ['.$o_target->s_warbeastName.'] with '.$a_weaponInfo['name'].' <br />');
 		$b_boostedHit = false;
 		if($this->b_boostHit && $this->i_curFury < $this->i_fury)
@@ -246,7 +227,7 @@ $b_stopOnDeath = false;
 $b_debug = false;
 //$b_debug = true;
 $i_laps = 500;
-if(isset($_GET['iterations']) && $_GET['iterations'] > 0)
+if(isset($_GET['iterations']))
 {
 	$i_laps = intval($_GET['iterations']);
 }
@@ -258,18 +239,18 @@ if($i_laps > 2000) $i_laps = 2000;
 echo '<form action="" method="GET">Tests executed with ['.$i_laps.'] iterations. <input type="text" name="iterations" value="'.$i_laps.'"><input type="submit" value="change" /><br />
 When there\'s fury left after (posibly) boosting we will buy extra attacks, applying our previous settings for boosting.</form>';
 
-$o_sample1 = new warbeast('Sample Beastie #1', 
+$o_carni = new warbeast('Carnivean +Incite', 
 array(
-	'str' => 8,
+	'str' => 14,
 	'def' => 11,
 	'arm' => 18,
-	'mat' => 5,
+	'mat' => 8,
 	'fury' => 4,
 	'dmg' => 30), 
 array(
 	array(
 		'name' => 'head',
-		'pow' => 4
+		'pow' => 6
 	),
 	array(
 		'name' => 'claw',
@@ -281,134 +262,141 @@ array(
 	)
 ));
 
-$o_sample2 = new warbeast('Sample Beastie #2', 
+$o_proteus = new warbeast('Proteus +Incite', 
 array(
-	'str' => 12,
+        'str' => 14,
+        'def' => 11,
+        'arm' => 18,
+        'mat' => 8,
+        'fury' => 5,
+        'dmg' => 30), 
+array(
+        array(
+                'name' => 'claw',
+                'pow' => 4
+        ),
+        array(
+                'name' => 'claw',
+                'pow' => 4
+        ),
+        array(
+                'name' => 'head',
+                'pow' => 2
+        ),
+));
+
+$o_scythean = new warbeast('Scythean +Incite', 
+array(
+        'str' => 14,
+        'def' => 11,
+        'arm' => 18,
+        'mat' => 8,
+        'fury' => 4,
+        'dmg' => 30), 
+array(
+        array(
+                'name' => 'claw',
+                'pow' => 5
+        ),
+        array(
+                'name' => 'claw',
+                'pow' => 5
+        ),
+        array(
+                'name' => 'chain',
+                'pow' => 5
+        ),
+));
+
+$o_ravagore = new warbeast('Ravagore +Incite', 
+array(
+        'str' => 14,
+        'def' => 11,
+        'arm' => 18,
+        'mat' => 7,
+        'fury' => 4,
+        'dmg' => 30), 
+array(
+        array(
+                'name' => 'claw',
+                'pow' => 4
+        ),
+        array(
+                'name' => 'claw',
+                'pow' => 4
+        ),
+));
+
+$o_warpwolf = new warbeast('Feral Warpwolf +warpArm', 
+array(
+	'str' => 11, // withouth warping
 	'def' => 14,
-	'arm' => 16,
-	'mat' => 6,
+	'arm' => 18, // with warping
+	'mat' => 7,
 	'fury' => 4,
-	'dmg' => 30), 
+	'dmg' => 28), 
 array(
 	array(
-		'name' => 'head',
-		'pow' => 4
-	),
-	array(
 		'name' => 'claw',
 		'pow' => 4
 	),
 	array(
 		'name' => 'claw',
 		'pow' => 4
+	),
+	array(
+		'name' => 'bite',
+		'pow' => 3
 	)
 ));
+
 
 $a_testCases = array(
 	array(
-		'title' => 'PS10 vs ARM18',
-		'xAxis' => -8,
-		'o_attacker' => array(
-			'str' => 6
-		),
-		'o_defender' => array(
-			'arm' => 18,
-			'def' => 0
-		)
+		'o_attacker' => $o_carni,
+		'o_defender' => $o_carni,
 	),
 	array(
-		'title' => 'PS12 vs ARM18',
-		'xAxis' => -6,
-		'o_attacker' => array(
-			'str' => 8
-		),
-		'o_defender' => array(
-			'arm' => 18,
-			'def' => 0
-		)
+		'o_attacker' => $o_proteus,
+		'o_defender' => $o_carni,
 	),
 	array(
-		'title' => 'PS14 vs ARM18',
-		'xAxis' => -4,
-		'o_attacker' => array(
-			'str' => 10
-		),
-		'o_defender' => array(
-			'arm' => 18,
-			'def' => 0
-		)
+		'o_attacker' => $o_scythean,
+		'o_defender' => $o_carni,
 	),
 	array(
-		'title' => 'PS16 vs ARM18',
-		'xAxis' => -2,
-		'o_attacker' => array(
-			'str' => 12
-		),
-		'o_defender' => array(
-			'arm' => 18,
-			'def' => 0
-		)
+		'o_attacker' => $o_ravagore,
+		'o_defender' => $o_carni,
 	),
 	array(
-		'title' => 'PS18 vs ARM18',
-		'xAxis' => 0,
-		'o_attacker' => array(
-			'str' => 14
-		),
-		'o_defender' => array(
-			'arm' => 18,
-			'def' => 0
-		)
+		'o_attacker' => $o_carni,
+		'o_defender' => $o_warpwolf,
 	),
 	array(
-		'title' => 'PS20 vs ARM18',
-		'xAxis' => 2,
-		'o_attacker' => array(
-			'str' => 16
-		),
-		'o_defender' => array(
-			'arm' => 18,
-			'def' => 0
-		)
+		'o_attacker' => $o_proteus,
+		'o_defender' => $o_warpwolf,
 	),
 	array(
-		'title' => 'PS22 vs ARM18',
-		'xAxis' => 4,
-		'o_attacker' => array(
-			'str' => 18
-		),
-		'o_defender' => array(
-			'arm' => 18,
-			'def' => 0
-		)
-	)
+		'o_attacker' => $o_scythean,
+		'o_defender' => $o_warpwolf,
+	),
+	array(
+		'o_attacker' => $o_ravagore,
+		'o_defender' => $o_warpwolf,
+	),
 );
 
-$a_testResults = array();
 foreach($a_testCases as $a_caseData)
 {	
-	$a_caseResult = array();
-	$a_caseResult['title'] = '';
-	$a_caseResult['results'] = array();
-	$o_attacker = $o_sample1;
-	$o_attacker->setStats($a_caseData['o_attacker']);
+	$o_attacker = $a_caseData['o_attacker'];
+	$o_defender = $a_caseData['o_defender'];
 	
-	$o_defender = $o_sample2;
-	$o_defender->setStats($a_caseData['o_defender']);
-		
-	if($a_caseData['title'])
-	{
-		$a_caseResult['title'] = $a_caseData['title'];	
-	}
-	else
-	{
-		$a_caseResult['title'] = '['.$o_attacker->s_warbeastName.'] attacking ['.$o_defender->s_warbeastName.']';
-	}
-	$a_caseResult['info'] = $o_attacker->infoDump() . $o_defender->infoDump();
+	echo '<hr /><b>['.$o_attacker->s_warbeastName.'] attacking ['.$o_defender->s_warbeastName.']</b><br />';
 	
 	/*
 		No boosted rolls, just exta attacks
 	*/
+	echo '<br /><b>Plain</b><br />';
 	$i_total = 0;
 	$i_deaths = 0;
 	for($i = 0; $i < $i_laps; $i++)
@@ -421,16 +409,12 @@ foreach($a_testCases as $a_caseData)
 	$i_avarageDmg = round(($i_total / $i_laps),2);
 	$i_chanceToKill = round(($i_deaths / $i_laps)*100,2);
 	$i_percentageHp = round(($i_avarageDmg / $o_defender->i_dmg)*100,2);
-	$a_caseResult['results'][] = array(
-		'title' => 'Plain',
-		'avarageDmg' => $i_avarageDmg,
-		'chanceToKill' => $i_chanceToKill,
-		'percentage' => $i_percentageHp
-	);
+	echo $i_avarageDmg.' damage done ('.$i_percentageHp.'% of total hp) '.$i_chanceToKill.'% chance to kill';
 	
 	/*
 		Boosted TO HIT
 	*/
+	echo '<br /><b>Boosted attack</b><br />';
 	$i_total = 0;
 	$i_deaths = 0;
 	for($i = 0; $i < $i_laps; $i++)
@@ -443,15 +427,12 @@ foreach($a_testCases as $a_caseData)
 	$i_avarageDmg = round(($i_total / $i_laps),2);
 	$i_chanceToKill = round(($i_deaths / $i_laps)*100,2);
 	$i_percentageHp = round(($i_avarageDmg / $o_defender->i_dmg)*100,2);
-	$a_caseResult['results'][] = array(
-		'title' => 'Boosted attack',
-		'avarageDmg' => $i_avarageDmg,
-		'chanceToKill' => $i_chanceToKill,
-		'percentage' => $i_percentageHp
-	);
+	echo $i_avarageDmg.' damage done ('.$i_percentageHp.'% of total hp) '.$i_chanceToKill.'% chance to kill';
+
 	/*
 		Boosted DMG
 	*/
+	echo '<br /><b>Boosted damage</b><br />';
 	$i_total = 0;
 	$i_deaths = 0;
 	for($i = 0; $i < $i_laps; $i++)
@@ -464,21 +445,17 @@ foreach($a_testCases as $a_caseData)
 	$i_avarageDmg = round(($i_total / $i_laps),2);
 	$i_chanceToKill = round(($i_deaths / $i_laps)*100,2);
 	$i_percentageHp = round(($i_avarageDmg / $o_defender->i_dmg)*100,2);
-	$a_caseResult['results'][] = array(
-		'title' => 'Boosted damage',
-		'avarageDmg' => $i_avarageDmg,
-		'chanceToKill' => $i_chanceToKill,
-		'percentage' => $i_percentageHp
-	);
+	echo $i_avarageDmg.' damage done ('.$i_percentageHp.'% of total hp) '.$i_chanceToKill.'% chance to kill';
 	
 	/*
 		Boosted BOTH
 	*/
+	echo '<br /><b>Boosted attack & dmg</b><br />';
 	$i_total = 0;
 	$i_deaths = 0;
 	for($i = 0; $i < $i_laps; $i++)
 	{
-		$a_result = executeTest(clone $o_attacker,clone $o_defender, false, true);
+		$a_result = executeTest(clone $o_attacker,clone $o_defender, true, true);
 		$i_total += $a_result[0];
 		$i_deaths += $a_result[1];
 	}
@@ -486,34 +463,9 @@ foreach($a_testCases as $a_caseData)
 	$i_avarageDmg = round(($i_total / $i_laps),2);
 	$i_chanceToKill = round(($i_deaths / $i_laps)*100,2);
 	$i_percentageHp = round(($i_avarageDmg / $o_defender->i_dmg)*100,2);
-	$a_caseResult['results'][] = array(
-		'title' => 'Boosted attack & dmg',
-		'avarageDmg' => $i_avarageDmg,
-		'chanceToKill' => $i_chanceToKill,
-		'percentage' => $i_percentageHp
-	);
-	
-	$a_testResults[$a_caseData['xAxis']] = $a_caseResult;
+	echo $i_avarageDmg.' damage done ('.$i_percentageHp.'% of total hp) '.$i_chanceToKill.'% chance to kill';
+
 }
 
-$a_graphData = array();
-
-foreach($a_testResults as $k2 => $a_caseResult)
-{
-	echo '<hr />';
-	echo '<b>'.$a_caseResult['title'].'</b><br /><br />';
-	echo ''.$a_caseResult['info'].'<br />';
-	echo '<br style="clear: both;" />';
-	foreach($a_caseResult['results'] as $k => $a_testInfo)
-	{
-		$a_graphData[$k][$k2] = $a_testInfo['avarageDmg'];
-		$a_graphData[$k]['title'] = $a_testInfo['title'];
-	
-		echo '<b>'.$a_testInfo['title'].'</b><br />';
-		echo $a_testInfo['avarageDmg'].' damage done ('.$a_testInfo['percentage'].'% of total hp) '.$a_testInfo['chanceToKill'].'% chance to kill.<br />';
-	}
-}
-
-echo '<hr /><span style="color: green;">All tests completed</span><hr />';
-generateGraph($a_graphData);
+echo '<hr /><span style="color: green;">All tests completed</span>';
 ?>   
