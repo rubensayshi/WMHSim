@@ -1,4 +1,8 @@
-WMHSim.beast = WMHSimBase.extend({
+WMHSim.beast = function(sim) {
+	this.dmg = this.stats.dmg;
+	this.sim = sim;
+};
+_.extend(WMHSim.beast.prototype, WMHSimBase.prototype, {
 	/*
 	 * properties
 	 */ 
@@ -17,14 +21,6 @@ WMHSim.beast = WMHSimBase.extend({
 	fury		:	0,
 	dmg			:	0,
 	alive		:	true,
-	
-	/*
-	 * constructor
-	 */ 
-	init			: function(sim) {
-		this.dmg = this.stats.dmg;
-		this.sim = sim;
-	},
 	
 	/*
 	 * methods
@@ -51,7 +47,9 @@ WMHSim.beast = WMHSimBase.extend({
 	},
 
 	doHit 			: function(defender, weapon) {
-		if(this.stats.mat + this.roll(2) > defender.getDef()) {
+		var roll	= this.roll(2);
+		console.log("mat ["+this.stats.mat+"] + roll ["+roll+"] > ["+defender.getDef()+"]" );
+		if(this.stats.mat + roll > defender.getDef()) {
 			weapon.trigger('do-hit');
 			return true;
 		}
@@ -62,8 +60,7 @@ WMHSim.beast = WMHSimBase.extend({
 	doDamage 		: function(defender, weapon) {
 		var roll	= this.roll(2);
 		var damage	= this.stats.str + weapon.getPow() + roll;
-		console.log(weapon);
-		console.log("PS ["+this.stats.str+" + "+weapon.getPow()+"] + roll ["+roll+"] = ["+damage+"]" );
+		console.log("{"+weapon.getName()+"} - PS ["+this.stats.str+" + "+weapon.getPow()+"] + roll ["+roll+"] = ["+damage+"]" );
 		var arm 	= defender.getArm();
 		var result	= damage - arm;
 		

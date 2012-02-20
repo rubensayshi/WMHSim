@@ -6,6 +6,9 @@ class Sim
 {
 	protected $attacker;
 	protected $defender;
+	
+	protected $totaldmg;
+	protected $killed;
 
 	public function run()
 	{
@@ -31,6 +34,26 @@ class Sim
 	{
 		$this->defender = $defender;
 		$this->defender->setSim($this);
+	}
+	
+	public function addDamageDone($damage)
+	{
+		$this->totaldmg += $damage;
+	}
+	
+	public function getDamageDone()
+	{
+		return $this->totaldmg;
+	}
+	
+	public function setKilled($killed = true)
+	{
+		$this->killed = $killed;
+	}
+	
+	public function isKilled()
+	{
+		return $this->killed;
 	}
 
 	static public function rollDice($dices=2)

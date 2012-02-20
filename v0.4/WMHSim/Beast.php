@@ -41,12 +41,12 @@ class Beast extends Model
 	public function attack($defender)
 	{
 		$this->sim->debug("[{$this->getName()}] starts attack on [{$defender->getName()}]");
-		$totalDmgDone	= 0;
 		$isDead			= false;
 		
 		foreach ($this->weapons as $weapon) {
-			$totalDmgDone += $this->evalAttack($defender, $weapon);
+			$this->sim->addDamageDone($this->evalAttack($defender, $weapon));
 			if (!$isDead && ($isDead = $defender->isDead())) {
+				$this->sim->setKilled(true);
 				$this->sim->debug("[{$defender->getName()} died");
 
 				if ($this->stopOnDeath) {
@@ -57,8 +57,9 @@ class Beast extends Model
 		
 		while($this->curFury < $this->fury) {
 			$this->curFury++;
-			$totalDmgDone += $this->evalAttack($defender, reset($this->weapons));
+			$this->sim->addDamageDone($this->evalAttack($defender, reset($this->weapons)));
 			if (!$isDead && ($isDead = $defender->isDead())) {
+				$this->sim->setKilled(true);
 				$this->sim->debug("[{$defender->getName()} died");
 				
 				if ($this->stopOnDeath) {
@@ -66,8 +67,6 @@ class Beast extends Model
 				}
 			}		
 		}
-		
-		return $totalDmgDone;
 	}
 	
 	function evalAttack($defender, $weapon)
