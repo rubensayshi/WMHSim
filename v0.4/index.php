@@ -1,12 +1,9 @@
 <?php
 
+require __DIR__.'/autoload.php';
+
 use WMHSim\Factions\Example\ExampleBeast;
 use WMHSim\Sim;
-
-require './WMHSim/Sim.php';
-require './WMHSim/Model.php';
-require './WMHSim/Beast.php';
-require './WMHSim/Factions/Example/ExampleBeast.php';
 
 $laps 		= 500;
 $success 	= 0;
