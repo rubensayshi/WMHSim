@@ -18,14 +18,19 @@ class Beast extends Model
 	protected $curDmg	= 0;
 	protected $weapons = array();
 	protected $buffs = array();
-	
-	protected $boostHit 	= false;
-	protected $boostDmg		= false;
-	protected $stopOnDeath	= false;
 		
 	public function setSim($sim) 
 	{
 		$this->sim = $sim;
+	}
+	
+	/**
+	 * 
+	 * @return WMHSim\Sim
+	 */
+	protected function getSim()
+	{
+		return $this->sim;
 	}
 	
 	public function getName() {			return $this->name;	}
@@ -40,16 +45,16 @@ class Beast extends Model
 
 	public function attack($defender)
 	{
-		$this->sim->debug("[{$this->getName()}] starts attack on [{$defender->getName()}]");
+		$this->getSim()->debug("[{$this->getName()}] starts attack on [{$defender->getName()}]");
 		$isDead			= false;
 		
 		foreach ($this->weapons as $weapon) {
-			$this->sim->addDamageDone($this->evalAttack($defender, $weapon));
+			$this->getSim()->addDamageDone($this->evalAttack($defender, $weapon));
 			if (!$isDead && ($isDead = $defender->isDead())) {
-				$this->sim->setKilled(true);
-				$this->sim->debug("[{$defender->getName()} died");
+				$this->getSim()->setKilled(true);
+				$this->getSim()->debug("[{$defender->getName()} died");
 
-				if ($this->stopOnDeath) {
+				if ($this->getSim()->isStopOnDeath()) {
 					return $defender->getDmg();
 				}
 			}
@@ -57,12 +62,12 @@ class Beast extends Model
 		
 		while($this->curFury < $this->fury) {
 			$this->curFury++;
-			$this->sim->addDamageDone($this->evalAttack($defender, reset($this->weapons)));
+			$this->getSim()->addDamageDone($this->evalAttack($defender, reset($this->weapons)));
 			if (!$isDead && ($isDead = $defender->isDead())) {
-				$this->sim->setKilled(true);
-				$this->sim->debug("[{$defender->getName()} died");
+				$this->getSim()->setKilled(true);
+				$this->getSim()->debug("[{$defender->getName()} died");
 				
-				if ($this->stopOnDeath) {
+				if ($this->getSim()->isStopOnDeath()) {
 					return $defender->getDmg();
 				}
 			}		
@@ -71,17 +76,17 @@ class Beast extends Model
 	
 	function evalAttack($defender, $weapon)
 	{	
-		$this->sim->debug("[{$this->getName()}] attacks [{$defender->getName()}] with {$weapon['name']}");
+		$this->getSim()->debug("[{$this->getName()}] attacks [{$defender->getName()}] with {$weapon['name']}");
 		
 		$boostedHit = false;
-		if ($this->boostHit && $this->curFury < $this->fury) {
+		if ($this->getSim()->isBoostAttack() && $this->curFury < $this->fury) {
 			$boostedHit = true;
 			$this->curFury++;
 		}
 		
 		if ($this->hitRoll($defender, $boostedHit)) {		
 			$boostedDmg = false;
-			if ($this->boostDmg && $this->curFury < $this->fury) {
+			if ($this->getSim()->isBoostDamage() && $this->curFury < $this->fury) {
 				$boostedDmg = true;
 				$this->curFury++;
 			}
@@ -112,7 +117,7 @@ class Beast extends Model
 		$def = $defender->getDef();
 		$res = $off >= $def;
 		
-		$this->sim->debug("[{$this->getName()}] {MAT {$this->getMat()} + roll {$roll} ({$rollTxt}) = {$off} VS def {$def} ".($res ? 'hit' : 'missed')." [{$defender->getName()}]");
+		$this->getSim()->debug("[{$this->getName()}] {MAT {$this->getMat()} + roll {$roll} ({$rollTxt}) = {$off} VS def {$def} ".($res ? 'hit' : 'missed')." [{$defender->getName()}]");
 			
 		return $res;
 	}
@@ -131,7 +136,7 @@ class Beast extends Model
 		$arm = $defender->getArm();
 		$res = $dmg - $arm;
 
-		$this->sim->debug("[{$defender->getName()}] took {$res} (P {$pow} + S {$this->getStr()} + roll {$roll} = {$dmg} - {$arm})");
+		$this->getSim()->debug("[{$defender->getName()}] took {$res} (P {$pow} + S {$this->getStr()} + roll {$roll} = {$dmg} - {$arm})");
 		
 		return $res > 0 ? $res : 0;
 	}

@@ -7,13 +7,19 @@ class Sim
 	protected $attacker;
 	protected $defender;
 	
-	protected $totaldmg;
-	protected $killed;
-
+	protected $totaldmg		= 0;
+	protected $killed		= false;
+	
+	protected $chargeAttack	= false;
+	protected $boostDamage	= false;
+	protected $boostAttack	= false;
+	
+	protected $stopOnDeath	= false;
+	
 	public function run()
 	{
 		if (!$this->attacker || !$this->defender) {
-			die('no attacker or defender');
+			throw new \Exception('no attacker or defender');
 		}
 		
 		$this->attacker->attack($this->defender);
@@ -54,6 +60,46 @@ class Sim
 	public function isKilled()
 	{
 		return $this->killed;
+	}
+	
+	public function setChangeAttack($chargeAttack = false)
+	{
+		$this->chargeAttack = $chargeAttack;
+	}
+	
+	public function isChargeAttack()
+	{
+		return $this->chargeAttack;
+	}
+	
+	public function setBoostAttack($boostAttack = false)
+	{
+		$this->boostAttack = $boostAttack;
+	}
+	
+	public function isBoostAttack()
+	{
+		return $this->boostAttack;
+	}
+	
+	public function setBoostDamage($boostDamage = false)
+	{
+		$this->boostDamage = $boostDamage;
+	}
+	
+	public function isBoostDamage()
+	{
+		return $this->boostDamage;
+	}
+	
+	public function setStopOnDeath($stopOnDeath = false)
+	{
+		$this->stopOnDeath = $stopOnDeath;
+	}
+	
+	public function isStopOnDeath()
+	{
+		return $this->stopOnDeath;
 	}
 
 	static public function rollDice($dices=2)
