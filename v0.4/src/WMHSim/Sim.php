@@ -46,6 +46,14 @@ class Sim
         $this->defender->setSim($this);
     }
 
+    public function getAttacker() {
+        return $this->attacker;
+    }
+
+    public function getDefender() {
+        return $this->defender;
+    }
+
     public function addDamageDone($damage) {
         $this->totaldmg += $damage;
     }
@@ -62,7 +70,7 @@ class Sim
         return $this->killed;
     }
 
-    public function setChangeAttack($chargeAttack = true) {
+    public function setChargeAttack($chargeAttack = true) {
         $this->chargeAttack = $chargeAttack;
     }
 

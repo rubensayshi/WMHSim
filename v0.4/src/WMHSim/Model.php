@@ -30,6 +30,10 @@ class Model {
         return $this->sim;
     }
 
+    public function addBuff($buff) {
+        $this->buffs[] = $buff;
+    }
+
     public function getName() { return $this->name; }
     public function getMat()  { return $this->mat;  }
     public function getStr()  { return $this->str;  }
@@ -87,7 +91,7 @@ class Model {
             }
         }
 
-        if (in_array($this->buffs['tide-of-blood'])) {
+        if (in_array('tide-of-blood', $this->buffs)) {
             if ($this->doAttack($defender, reset($this->weapons))) {
                 return;
             }
@@ -163,7 +167,7 @@ class Model {
         $arm = $defender->getArm();
         $res = $dmg - $arm;
 
-        $this->getSim()->debug("[{$defender->getName()}] (P {$pow} + S {$this->getStr()} + roll {$roll} = {$dmg} - {$arm})");
+        $this->getSim()->debug("[{$defender->getName()}] (P {$pow} + S {$this->getStr()} + roll {$roll} ({$rollTxt}) = {$dmg} - {$arm})");
 
         return $res > 0 ? $res : 0;
     }

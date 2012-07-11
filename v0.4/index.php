@@ -1,39 +1,59 @@
 <?php
 
+ini_set('display_errors', 'On');
+
 require __DIR__.'/autoload.php';
 
-use WMHSim\Factions\Example\ExampleBeast;
-use WMHSim\Factions\Legion\Rhyas;
 use WMHSim\Sim;
 
 $debug   = true;
 $laps    = 1000;
 $laps    = $debug ? 1 : $laps;
-$success = 0;
 
-$attacker = new Rhyas();
-$defender = new ExampleBeast();
+$attacker = new \WMHSim\Factions\Legion\Rhyas();
+$defender = new \WMHSim\Factions\Cryx\Terminus();
+// $defender->setTransfers(2);
 
-for ($i = 0; $i < $laps; $i++) {
-    $sim = new Sim();
-    $sim->setAttacker(clone $attacker);
-    $sim->setDefender(clone $defender);
+$scenarios = array(
+    'normal'       => array(),
+    'boosted-hit'  => array('boosted-hit'),
+    'boosted-dmg'  => array('boosted-dmg'),
+    'boosted-both' => array('boosted-hit', 'boosted-dmg'),
+);
 
-    $sim->setBoostAttack();
-    $sim->setChangeAttack();
-    $sim->setDebug($debug);
+foreach (array(true, false) as $tide) {
+    echo "<hr /> {$tide} <hr />";
+    foreach ($scenarios as $title => $scenario) {
+        $success = 0;
 
-    $sim->run();
+        echo "<hr /> {$title} <hr />";
+        for ($i = 0; $i < $laps; $i++) {
+            $sim = new Sim();
+            $sim->setAttacker(clone $attacker);
+            $sim->setDefender(clone $defender);
 
-    if ($sim->isKilled()) {
-        $success++;
-    }
+            $sim->setBoostAttack(in_array('boosted-hit', $scenario));
+            $sim->setBoostDamage(in_array('boosted-dmg', $scenario));
+            $sim->setChargeAttack();
+            $sim->setDebug($debug);
 
-    if ($debug) {
-        echo "---\n";
+            if ($tide) {
+                $sim->getAttacker()->addBuff('tide-of-blood');
+            }
+
+            $sim->run();
+
+            if ($sim->isKilled()) {
+                $success++;
+            }
+
+            if ($debug) {
+                echo "---\n";
+            }
+        }
+
+        $chance = round($success / $laps * 100, 2);
+
+        echo "{$laps} laps, {$success} kills = {$chance}% chance \n";
     }
 }
-
-$chance = round($success / $laps * 100, 2);
-
-echo "{$laps} laps, {$success} kills = {$chance}% chance \n";

@@ -5,9 +5,26 @@ namespace WMHSim;
 class Warlock extends Warrior {
     protected $fury    = 0;
     protected $curFury = 0;
+    protected $transfers = 0;
 
     public function __construct() {
         $this->curFury = $this->fury;
+    }
+
+    public function setTransfers($transfers) {
+        $this->transfers = $transfers;
+    }
+
+    public function takeDamage($damageDone) {
+        if ($this->transfers > 0) {
+            $this->transfers--;
+
+            $this->getSim()->debug("[{$this->getName()}] transfered {$damageDone}");
+
+            return;
+        }
+
+        parent::takeDamage($damageDone);
     }
 
     protected function isBoostedHit() {
