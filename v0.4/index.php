@@ -3,26 +3,35 @@
 require __DIR__.'/autoload.php';
 
 use WMHSim\Factions\Example\ExampleBeast;
+use WMHSim\Factions\Legion\Rhyas;
 use WMHSim\Sim;
 
-$laps 		= 500;
-$success 	= 0;
+$debug   = true;
+$laps    = 1000;
+$laps    = $debug ? 1 : $laps;
+$success = 0;
 
-$attacker	= new ExampleBeast();
-$defender	= new ExampleBeast();
+$attacker = new Rhyas();
+$defender = new ExampleBeast();
 
 for ($i = 0; $i < $laps; $i++) {
-	$sim = new Sim();
-	$sim->setAttacker(clone $attacker);
-	$sim->setDefender(clone $defender);
-	
-	$sim->run();
-	
-	if ($sim->isKilled()) {
-		$success++;
-	}
-	
-	echo "---\n";
+    $sim = new Sim();
+    $sim->setAttacker(clone $attacker);
+    $sim->setDefender(clone $defender);
+
+    $sim->setBoostAttack();
+    $sim->setChangeAttack();
+    $sim->setDebug($debug);
+
+    $sim->run();
+
+    if ($sim->isKilled()) {
+        $success++;
+    }
+
+    if ($debug) {
+        echo "---\n";
+    }
 }
 
 $chance = round($success / $laps * 100, 2);

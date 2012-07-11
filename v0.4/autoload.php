@@ -6,6 +6,6 @@ use Symfony\Component\ClassLoader\UniversalClassLoader;
 
 $loader = new UniversalClassLoader();
 
-$loader->registerNamespace('WMHSim',	__DIR__.'/src');
+$loader->registerNamespace('WMHSim',    __DIR__.'/src');
 
 $loader->register();
