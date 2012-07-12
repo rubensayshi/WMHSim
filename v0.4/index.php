@@ -1,14 +1,43 @@
 <?php
 
 ini_set('display_errors', 'On');
+define('IS_CLI',  php_sapi_name() == 'cli');
+define('DEBUG',   false);
+
+function echoline($s, $debug=true) {
+    if ($debug && !DEBUG) {
+        return;
+    }
+
+    if (is_bool($s)) {
+        $s = $s ? 'true' : 'false';
+    }
+
+    echo $s . (IS_CLI ? "\n" : "<br />");
+}
+function echoheader($s, $debug=false) {
+    if ($debug && !DEBUG) {
+        return;
+    }
+
+    if (is_bool($s)) {
+        $s = $s ? 'true' : 'false';
+    }
+
+    if (IS_CLI) {
+        echo "\n===================\n{$s}\n===================\n";
+    } else {
+        echo "<hr />{$s}<hr />";
+
+    }
+}
 
 require __DIR__.'/autoload.php';
 
 use WMHSim\Sim;
 
-$debug   = true;
 $laps    = 1000;
-$laps    = $debug ? 1 : $laps;
+$laps    = DEBUG ? 1 : $laps;
 
 $attacker = new \WMHSim\Factions\Legion\Rhyas();
 $defender = new \WMHSim\Factions\Cryx\Terminus();
@@ -22,11 +51,11 @@ $scenarios = array(
 );
 
 foreach (array(true, false) as $tide) {
-    echo "<hr /> {$tide} <hr />";
+    echoheader($tide, false);
     foreach ($scenarios as $title => $scenario) {
         $success = 0;
 
-        echo "<hr /> {$title} <hr />";
+        echoheader($title, false);
         for ($i = 0; $i < $laps; $i++) {
             $sim = new Sim();
             $sim->setAttacker(clone $attacker);
@@ -35,7 +64,7 @@ foreach (array(true, false) as $tide) {
             $sim->setBoostAttack(in_array('boosted-hit', $scenario));
             $sim->setBoostDamage(in_array('boosted-dmg', $scenario));
             $sim->setChargeAttack();
-            $sim->setDebug($debug);
+            $sim->setDebug(DEBUG);
 
             if ($tide) {
                 $sim->getAttacker()->addBuff('tide-of-blood');
@@ -47,13 +76,11 @@ foreach (array(true, false) as $tide) {
                 $success++;
             }
 
-            if ($debug) {
-                echo "---\n";
-            }
+            echoline("-------");
         }
 
         $chance = round($success / $laps * 100, 2);
 
-        echo "{$laps} laps, {$success} kills = {$chance}% chance \n";
+        echoline("{$laps} laps, {$success} kills = {$chance}% chance", false);
     }
 }

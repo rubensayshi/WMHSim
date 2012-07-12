@@ -27,9 +27,7 @@ class Sim
     }
 
     public function debug($message) {
-        if ($this->debug) {
-            echo "{$message}<br />";
-        }
+        echoline($message);
     }
 
     public function setDebug($debug = true) {
