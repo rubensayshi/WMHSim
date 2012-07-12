@@ -19,7 +19,7 @@ class SimScenario extends SimOptions {
 
     public function run() {
         $success = 0;
-        $dmg     = 0;
+        $dmg[]   = array();
 
         for ($i = 0; $i < $this->laps; $i++) {
             $sim = new Sim();
@@ -34,7 +34,7 @@ class SimScenario extends SimOptions {
 
             $sim->run();
 
-            $dmg += $sim->getDamageDone();
+            $dmg[] = $sim->getDamageDone();
 
             if ($sim->isKilled()) {
                 $success++;
@@ -45,10 +45,27 @@ class SimScenario extends SimOptions {
             }
         }
 
-        $chance = round(($success / $this->laps) * 100, 2);
-        $avgdmg = round($dmg / $this->laps, 2);
-        $avgofhp= round(($avgdmg / $sim->getDefender()->getDmg()) * 100, 2);
+        sort($dmg);
 
-        echo "{$this->laps} laps, {$success} kills = {$chance}% chance, {$avgdmg} avg damage ({$avgofhp}% of total hp)\n";
+        $chance = round(($success / $this->laps) * 100, 2);
+        $avgdmg = round(array_sum($dmg) / $this->laps, 2);
+        $avgofhp= round(($avgdmg / $sim->getDefender()->getDmg()) * 100, 2);
+        $median = round(self::median($dmg), 2);
+        $medofhp= round(($median / $sim->getDefender()->getDmg()) * 100, 2);
+
+        echo "{$this->laps} laps, {$success} kills = {$chance}% chance, {$avgdmg} avg damage ({$avgofhp}%), {$median} median damage ({$medofhp}%)\n";
+    }
+
+    public static function median($vals) {
+        $n = count($vals);
+        $h = intval($n / 2);
+
+        if($n % 2 == 0) {
+            $median = ($vals[$h] + $vals[$h-1]) / 2;
+        } else {
+            $median = $vals[$h];
+        }
+
+        return $median;
     }
 }
