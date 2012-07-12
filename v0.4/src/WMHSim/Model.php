@@ -18,7 +18,7 @@ class Model {
 
     protected $usedCharge = false;
 
-    public function setSim($sim) {
+    public function setSim(SimOptions $sim) {
         $this->sim = $sim;
     }
 
@@ -61,11 +61,11 @@ class Model {
         return false;
     }
 
-    protected function attackMore($defender) {
+    protected function attackMore(Model $defender) {
         return;
     }
 
-    protected function doAttack($defender, $weapon) {
+    protected function doAttack(Model $defender, $weapon) {
         $isDead = $defender->isDead();
 
         $this->getSim()->addDamageDone($this->evalAttack($defender, $weapon));
@@ -82,7 +82,7 @@ class Model {
 
     }
 
-    public function attack($defender) {
+    public function attack(Model $defender) {
         $this->getSim()->debug("[{$this->getName()}] starts attack on [{$defender->getName()}]");
 
         foreach ($this->weapons as $weapon) {
@@ -100,7 +100,7 @@ class Model {
         $this->attackMore($defender);
     }
 
-    function evalAttack($defender, $weapon) {
+    function evalAttack(Model $defender, $weapon) {
         $this->getSim()->debug("[{$this->getName()}] attacks [{$defender->getName()}] with {$weapon['name']}");
 
         $boostedHit = $this->isBoostedHit();
@@ -135,7 +135,7 @@ class Model {
         $this->curDmg += $damageDone;
     }
 
-    function hitRoll($defender, $boosted=false) {
+    function hitRoll(Model $defender, $boosted=false) {
         if ($boosted) {
             $rollTxt    = '3D6';
             $roll        = Sim::rollDice(3);
@@ -156,7 +156,7 @@ class Model {
         return array('hit' => $res, 'crit' => $crit);
     }
 
-    function damageRoll($defender, $pow=0, $dice=2) {
+    function damageRoll(Model $defender, $pow=0, $dice=2) {
         $rollTxt = "{$dice}D6";
         $roll    = Sim::rollDice($dice);
 

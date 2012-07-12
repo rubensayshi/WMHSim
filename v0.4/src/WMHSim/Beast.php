@@ -6,7 +6,7 @@ class Beast extends Model {
     protected $fury    = 0;
     protected $curFury = 0;
 
-    public function attackMore($defender) {
+    public function attackMore(Model $defender) {
         while($this->curFury < $this->fury) {
             $this->curFury++;
             if ($this->doAttack($defender, reset($this->weapons))) {

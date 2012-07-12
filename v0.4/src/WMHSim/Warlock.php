@@ -37,7 +37,7 @@ class Warlock extends Warrior {
         return $boostedHit;
     }
 
-    public function attackMore($defender) {
+    public function attackMore(Model $defender) {
         while($this->curFury > 0) {
             $this->curFury--;
             if ($this->doAttack($defender, reset($this->weapons))) {
