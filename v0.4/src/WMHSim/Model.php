@@ -34,11 +34,16 @@ class Model {
         $this->buffs[] = $buff;
     }
 
+    public function hasBuff($buff) {
+        return in_array($buff, $this->buffs);
+    }
+
     public function getName() { return $this->name; }
     public function getMat()  { return $this->mat;  }
     public function getStr()  { return $this->str;  }
     public function getDef()  { return $this->def;  }
     public function getArm()  { return $this->arm;  }
+    public function getDmg()  { return $this->dmg;  }
 
     public function isDead() {
         return ($this->curDmg >= $this->dmg);
@@ -91,7 +96,7 @@ class Model {
             }
         }
 
-        if (in_array('tide-of-blood', $this->buffs)) {
+        if ($this->hasBuff('tide-of-blood')) {
             if ($this->doAttack($defender, reset($this->weapons))) {
                 return;
             }
@@ -148,6 +153,14 @@ class Model {
         $roll = $roll['roll'];
 
         $off = $this->getMat() + $roll;
+
+        if ($this->hasBuff('incite')) {
+            $off += 2;
+        }
+        if ($this->hasBuff('chiller')) {
+            $off += 2;
+        }
+
         $def = $defender->getDef();
         $res = $off >= $def;
 
@@ -165,6 +178,19 @@ class Model {
 
         $dmg = $this->getStr() + $pow + $roll;
         $arm = $defender->getArm();
+
+        if ($this->hasBuff('incite')) {
+            $dmg += 2;
+        }
+
+        if ($defender->hasBuff('warp-arm')) {
+            $arm += 2;
+        }
+
+        if ($defender->hasBuff('spiny-growth')) {
+            $arm += 2;
+        }
+
         $res = $dmg - $arm;
 
         $this->getSim()->debug("[{$defender->getName()}] (P {$pow} + S {$this->getStr()} + roll {$roll} ({$rollTxt}) = {$dmg} - {$arm})");

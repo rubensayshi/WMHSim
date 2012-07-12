@@ -15,15 +15,16 @@ $laps    = DEBUG ? 1 : $laps;
 
 ob_start();
 
-$scenario = new SimScenario(new \WMHSim\Factions\Legion\Rhyas(), new \WMHSim\Factions\Legion\eThagrosh());
+$scenario = new SimScenario(new \WMHSim\Factions\Legion\Carnivean(), new \WMHSim\Factions\Circle\FeralWarpwolf());
 
 $scenario->setBoostAttack(false);
 $scenario->setBoostDamage(false);
-$scenario->setChargeAttack();
+$scenario->setChargeAttack(false);
 $scenario->setLaps($laps);
 $scenario->setDebug(DEBUG);
-$scenario->getAttacker()->addBuff('tide-of-blood');
-$scenario->getDefender()->setTransfers(4);
+$scenario->getAttacker()->addBuff('incite');
+$scenario->getAttacker()->addBuff('chiller');
+$scenario->getDefender()->addBuff('warp-str');
 
 $scenario->run();
 
