@@ -8,7 +8,7 @@ class Rhyas extends Warlock
 {
     protected $name = 'Rhyas';
 
-    protected $str = 8;
+    protected $str = 5;
     protected $def = 16;
     protected $arm = 14;
     protected $mat = 8;
@@ -18,8 +18,8 @@ class Rhyas extends Warlock
     protected $curFury = 0;
     protected $weapons = array(
         array(
-            'name'   => 'Sword',
-            'pow'    => 4,
+            'name'   => 'Antiphon',
+            'pow'    => 7,
             'weapon-master' => true,
             'crit-decap'    => true
         ),
