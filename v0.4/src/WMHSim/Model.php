@@ -63,7 +63,7 @@ class Model {
             $this->usedCharge = true;
         }
 
-        return false;
+        return $boostedDmg;
     }
 
     protected function attackMore(Model $defender) {
@@ -74,6 +74,9 @@ class Model {
         $isDead = $defender->isDead();
 
         $this->getSim()->addDamageDone($this->evalAttack($defender, $weapon));
+        if (!$this->usedCharge) {
+            $this->usedCharge = true;
+        }
         if (!$isDead && ($isDead = $defender->isDead())) {
             $this->getSim()->setKilled(true);
             $this->getSim()->debug("[{$defender->getName()} died");

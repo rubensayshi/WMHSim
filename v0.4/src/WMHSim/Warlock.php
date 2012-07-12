@@ -37,6 +37,16 @@ class Warlock extends Warrior {
         return $boostedHit;
     }
 
+    protected function isBoostedDmg() {
+        $boostedDmg = parent::isBoostedDmg();
+        if (!$boostedDmg && $this->getSim()->isBoostDamage() && $this->curFury > 0) {
+            $boostedDmg = true;
+            $this->curFury--;
+        }
+
+        return $boostedDmg;
+    }
+
     public function attackMore(Model $defender) {
         while($this->curFury > 0) {
             $this->curFury--;

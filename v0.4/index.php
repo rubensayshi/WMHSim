@@ -1,7 +1,5 @@
 <?php
 
-use WMHSim\Factions\Legion\eThagrosh;
-
 ini_set('display_errors', 'On');
 define('IS_CLI', php_sapi_name() == 'cli');
 define('DEBUG',  false);

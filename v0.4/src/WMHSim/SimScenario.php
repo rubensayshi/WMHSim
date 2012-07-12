@@ -19,7 +19,7 @@ class SimScenario extends SimOptions {
 
     public function run() {
         $success = 0;
-        $dmg[]   = array();
+        $dmg     = array();
 
         for ($i = 0; $i < $this->laps; $i++) {
             $sim = new Sim();
@@ -59,6 +59,10 @@ class SimScenario extends SimOptions {
     public static function median($vals) {
         $n = count($vals);
         $h = intval($n / 2);
+
+        if ($n == 1) {
+            return $vals[0];
+        }
 
         if($n % 2 == 0) {
             $median = ($vals[$h] + $vals[$h-1]) / 2;
