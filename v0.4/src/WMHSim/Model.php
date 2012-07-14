@@ -71,36 +71,51 @@ class Model {
     }
 
     protected function doAttack(Model $defender, $weapon) {
-        $isDead = $defender->isDead();
+        $result = new AttackResult();
+        $result->setDead($defender->isDead());
 
-        $this->getSim()->addDamageDone($this->evalAttack($defender, $weapon));
-        if (!$this->usedCharge) {
+        if (!$this->usedCharge && $this->getSim()->isChargeAttack()) {
+            $result->setCharge();
             $this->usedCharge = true;
         }
-        if (!$isDead && ($isDead = $defender->isDead())) {
+
+        $result = $this->evalAttack($defender, $weapon, $result);
+        $this->getSim()->addDamageDone($result->getDamage());
+        if (!$result->isDead() && $defender->isDead()) {
+            $result->setKilled();
             $this->getSim()->setKilled(true);
             $this->getSim()->debug("[{$defender->getName()} died");
-
-            if ($this->getSim()->isStopOnDeath()) {
-                return true;
-            }
         }
 
-        return false;
+        return $result;
 
     }
 
     public function attack(Model $defender) {
         $this->getSim()->debug("[{$this->getName()}] starts attack on [{$defender->getName()}]");
 
+        $chainAttack = true;
+
         foreach ($this->weapons as $weapon) {
-            if ($this->doAttack($defender, $weapon)) {
+            $result = $this->doAttack($defender, $weapon);
+            if ($result->isKilled() && $this->getSim()->isStopOnDeath()) {
+                return;
+            }
+
+            $chainAttack = $chainAttack && $result->isHit();
+        }
+
+        if ($chainAttack && method_exists($this, 'chainAttack')) {
+            $this->getSim()->debug(" -- CHAIN ATTACK");
+            $result = $this->chainAttack($defender);
+            if ($result->isKilled() && $this->getSim()->isStopOnDeath()) {
                 return;
             }
         }
 
         if ($this->hasBuff('tide-of-blood')) {
-            if ($this->doAttack($defender, reset($this->weapons))) {
+            $result = $this->doAttack($defender, reset($this->weapons));
+            if ($result->isKilled() && $this->getSim()->isStopOnDeath()) {
                 return;
             }
         }
@@ -108,12 +123,12 @@ class Model {
         $this->attackMore($defender);
     }
 
-    function evalAttack(Model $defender, $weapon) {
+    function evalAttack(Model $defender, $weapon, AttackResult $result) {
         $this->getSim()->debug("[{$this->getName()}] attacks [{$defender->getName()}] with {$weapon['name']}");
 
         $boostedHit = $this->isBoostedHit();
-
-        if (($res = $this->hitRoll($defender, $boostedHit)) && $res['hit']) {
+        $result     = $this->hitRoll($defender, $boostedHit, $result);
+        if ($result->isHit()) {
             $boostedDmg = $this->isBoostedDmg();
 
             $dice = 2;
@@ -125,25 +140,31 @@ class Model {
                 $dice += 1;
             }
 
-            $damageDone = $this->damageRoll($defender, $weapon['pow'], $dice);
+            $result = $this->damageRoll($defender, $weapon['pow'], $dice, $result);
 
-            if (isset($weapon['crit-decap']) && $weapon['crit-decap'] && $res['crit']) {
-                $damageDone *= 2;
+            if (isset($weapon['crit-decap']) && $weapon['crit-decap'] && $result->isCrit()) {
+                $result->setDamage($result->getDamage() * 2);
             }
 
-            $defender->takeDamage($damageDone);
-
-            return $damageDone;
+            $result = $defender->takeDamage($result);
         }
+
+        return $result;
     }
 
-    public function takeDamage($damageDone) {
-        $this->getSim()->debug("[{$this->getName()}] took {$damageDone} dmg");
+    public function takeDamage(AttackResult $result) {
+        $this->getSim()->debug("[{$this->getName()}] took {$result->getDamage()} dmg");
 
-        $this->curDmg += $damageDone;
+        $this->curDmg += $result->getDamage();
+
+        if (!$result->isDead() && $this->isDead()) {
+            $result->setKilled()->setDead();
+        }
+
+        return $result;
     }
 
-    function hitRoll(Model $defender, $boosted=false) {
+    function hitRoll(Model $defender, $boosted=false, AttackResult $result) {
         if ($boosted) {
             $rollTxt    = '3D6';
             $roll        = Sim::rollDice(3);
@@ -152,7 +173,7 @@ class Model {
             $roll        = Sim::rollDice(2);
         }
 
-        $crit = $roll['crit'];
+        $result->setCrit($roll['crit']);
         $roll = $roll['roll'];
 
         $off = $this->getMat() + $roll;
@@ -165,19 +186,18 @@ class Model {
         }
 
         $def = $defender->getDef();
-        $res = $off >= $def;
+        $result->setHit((boolean)($off >= $def));
 
-        $this->getSim()->debug("{MAT {$this->getMat()} + roll {$roll} ({$rollTxt}) = {$off} VS def {$def} ".($res ? ($crit ? 'crit' : 'hit') : 'missed')." [{$defender->getName()}]");
+        $this->getSim()->debug("{MAT {$this->getMat()} + roll {$roll} ({$rollTxt}) = {$off} VS def {$def} ".($result->isHit() ? ($result->isCrit() ? 'crit' : 'hit') : 'missed')." [{$defender->getName()}]");
 
-        return array('hit' => $res, 'crit' => $crit);
+        return $result;
     }
 
-    function damageRoll(Model $defender, $pow=0, $dice=2) {
+    function damageRoll(Model $defender, $pow=0, $dice=2, AttackResult $result) {
         $rollTxt = "{$dice}D6";
         $roll    = Sim::rollDice($dice);
 
         $roll = $roll['roll'];
-        $crit = $roll['crit'];
 
         $dmg = $this->getStr() + $pow + $roll;
         $arm = $defender->getArm();
@@ -198,7 +218,9 @@ class Model {
 
         $this->getSim()->debug("[{$defender->getName()}] (P {$pow} + S {$this->getStr()} + roll {$roll} ({$rollTxt}) = {$dmg} - {$arm})");
 
-        return $res > 0 ? $res : 0;
+        $result->setDamage($res > 0 ? $res : 0);
+
+        return $result;
     }
 
 }
