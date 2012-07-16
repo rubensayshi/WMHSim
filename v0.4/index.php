@@ -2,7 +2,7 @@
 
 ini_set('display_errors', 'On');
 define('IS_CLI', php_sapi_name() == 'cli');
-define('DEBUG',  false);
+define('DEBUG',  true);
 
 require __DIR__.'/autoload.php';
 
@@ -13,16 +13,18 @@ $laps    = DEBUG ? 1 : $laps;
 
 ob_start();
 
-$scenario = new SimScenario(new \WMHSim\Factions\Legion\Carnivean(), new \WMHSim\Factions\Circle\FeralWarpwolf());
+$scenario = new SimScenario(new \WMHSim\Factions\Legion\Scythean(), new \WMHSim\Factions\Legion\Carnivean());
 
 $scenario->setBoostAttack(false);
 $scenario->setBoostDamage(false);
 $scenario->setChargeAttack(false);
 $scenario->setLaps($laps);
 $scenario->setDebug(DEBUG);
-$scenario->getAttacker()->addBuff('incite');
-$scenario->getAttacker()->addBuff('chiller');
-$scenario->getDefender()->addBuff('warp-str');
+// $scenario->getAttacker()->addBuff('incite');
+// $scenario->getAttacker()->addBuff('chiller');
+// $scenario->getAttacker()->addBuff('tide-of-blood');
+// $scenario->getDefender()->addBuff('spiny-growth');
+// $scenario->getDefender()->addBuff('warp-arm');
 
 $scenario->run();
 

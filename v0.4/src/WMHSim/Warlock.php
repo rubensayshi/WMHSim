@@ -15,16 +15,16 @@ class Warlock extends Warrior {
         $this->transfers = $transfers;
     }
 
-    public function takeDamage($damageDone) {
-        if ($this->transfers > 0) {
+    public function takeDamage($result) {
+        if ($result->getDamage() > 0 && $this->transfers > 0) {
             $this->transfers--;
 
             $this->getSim()->debug("[{$this->getName()}] transfered {$damageDone}");
 
-            return;
+            return $result;
         }
 
-        parent::takeDamage($damageDone);
+        return parent::takeDamage($damageDone);
     }
 
     protected function isBoostedHit() {
@@ -50,7 +50,8 @@ class Warlock extends Warrior {
     public function attackMore(Model $defender) {
         while($this->curFury > 0) {
             $this->curFury--;
-            if ($this->doAttack($defender, reset($this->weapons))) {
+            $result = $this->doAttack($defender, reset($this->weapons));
+            if ($result->isKilled() && $this->getSim()->isStopOnDeath()) {
                 return;
             }
         }

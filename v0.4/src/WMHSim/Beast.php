@@ -9,7 +9,8 @@ class Beast extends Model {
     public function attackMore(Model $defender) {
         while($this->curFury < $this->fury) {
             $this->curFury++;
-            if ($this->doAttack($defender, reset($this->weapons))) {
+            $result = $this->doAttack($defender, reset($this->weapons));
+            if ($result->isKilled() && $this->getSim()->isStopOnDeath()) {
                 return;
             }
         }
