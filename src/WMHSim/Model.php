@@ -12,6 +12,8 @@ class Model {
     protected $mat = 0;
     protected $dmg = 0;
 
+    protected $tough = false;
+
     protected $curDmg  = 0;
     protected $weapons = array();
     protected $buffs   = array();
@@ -55,12 +57,11 @@ class Model {
         return $boostedHit;
     }
 
-    protected function isBoostedDmg() {
+    protected function isBoostedDmg(AttackResult $result) {
         $boostedDmg = false;
 
-        if ($this->getSim()->isChargeAttack() && !$this->usedCharge) {
+        if ($result->isCharge()) {
             $boostedDmg = true;
-            $this->usedCharge = true;
         }
 
         return $boostedDmg;
@@ -129,7 +130,7 @@ class Model {
         $boostedHit = $this->isBoostedHit();
         $result     = $this->hitRoll($defender, $boostedHit, $result);
         if ($result->isHit()) {
-            $boostedDmg = $this->isBoostedDmg();
+            $boostedDmg = $this->isBoostedDmg($result);
 
             $dice = 2;
 
@@ -157,8 +158,19 @@ class Model {
 
         $this->curDmg += $result->getDamage();
 
+        // if this is the moment we die ...
         if (!$result->isDead() && $this->isDead()) {
-            $result->setKilled();
+            // though ... if we make the roll we'll put our current damage taken on our total damage -1, near dead ...
+            if ($this->tough) {
+                $roll = Sim::rollDice(1);
+                if ($roll['roll'] >= 5) {
+                    $this->curDmg = $this->dmg-1;
+                }
+            }
+
+            if ($this->isDead()) {
+                $result->setKilled();
+            }
         }
 
         return $result;

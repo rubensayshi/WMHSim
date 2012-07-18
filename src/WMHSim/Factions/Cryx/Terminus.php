@@ -20,8 +20,6 @@ class Terminus extends Warlock
         array(
             'name'   => 'Sword',
             'pow'    => 4,
-            'weapon-master' => true,
-            'crit-decap'    => true
         ),
     );
 }

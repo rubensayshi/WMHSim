@@ -6,9 +6,10 @@ define('DEBUG',  in_array('--debug', $argv));
 
 require __DIR__.'/autoload.php';
 
+use WMHSim\Warlock;
 use WMHSim\SimScenario;
 
-$laps    = 1000;
+$laps    = 5000;
 $laps    = DEBUG ? 1 : $laps;
 
 ob_start();
@@ -41,6 +42,16 @@ if (array_intersect(array('--warp-arm'), $argv)) {
 }
 if (array_intersect(array('--spiny-growth'), $argv)) {
     $scenario->getDefender()->addBuff('spiny-growth');
+}
+
+if ($scenario->getDefender() instanceof Warlock) {
+    if (($k = array_search('--transfers', $argv)) !== false) {
+        if (!isset($argv[$k+1]) || !is_numeric($argv[$k+1])) {
+            throw new Exception("Specfied --transfer but without the amount of transfers");
+        }
+
+        $scenario->getDefender()->setTransfers($argv[$k+1]);
+    }
 }
 
 $scenario->run();

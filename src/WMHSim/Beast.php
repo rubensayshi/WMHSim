@@ -26,8 +26,8 @@ class Beast extends Model {
         return $boostedHit;
     }
 
-    protected function isBoostedDmg() {
-        $boostedDmg = parent::isBoostedDmg();
+    protected function isBoostedDmg(AttackResult $result) {
+        $boostedDmg = parent::isBoostedDmg($result);
         if (!$boostedDmg && $this->getSim()->isBoostDamage() && $this->curFury < $this->fury) {
             $boostedDmg = true;
             $this->curFury++;
