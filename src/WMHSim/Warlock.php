@@ -19,12 +19,12 @@ class Warlock extends Warrior {
         if ($result->getDamage() > 0 && $this->transfers > 0) {
             $this->transfers--;
 
-            $this->getSim()->debug("[{$this->getName()}] transfered {$damageDone}");
+            $this->getSim()->debug("[{$this->getName()}] transfered {$result->getDamage()}");
 
             return $result;
         }
 
-        return parent::takeDamage($damageDone);
+        return parent::takeDamage($result);
     }
 
     protected function isBoostedHit() {

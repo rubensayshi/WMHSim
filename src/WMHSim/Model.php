@@ -158,7 +158,7 @@ class Model {
         $this->curDmg += $result->getDamage();
 
         if (!$result->isDead() && $this->isDead()) {
-            $result->setKilled()->setDead();
+            $result->setKilled();
         }
 
         return $result;

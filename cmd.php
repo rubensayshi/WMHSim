@@ -39,6 +39,9 @@ if (array_intersect(array('--tide-of-blood'), $argv)) {
 if (array_intersect(array('--warp-arm'), $argv)) {
     $scenario->getDefender()->addBuff('warp-arm');
 }
+if (array_intersect(array('--spiny-growth'), $argv)) {
+    $scenario->getDefender()->addBuff('spiny-growth');
+}
 
 $scenario->run();
 
